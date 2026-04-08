@@ -1,0 +1,13 @@
+POST localhost:8080/events
+Content-Type: application/json
+
+{
+  "name": "Event Name",
+  "description": "Event Description"
+}
+
+### Get all events
+GET localhost:8080/events
+
+### Get a specific event by ID
+GET localhost:8080/events/2
