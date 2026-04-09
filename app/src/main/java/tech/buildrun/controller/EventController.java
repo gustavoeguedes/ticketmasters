@@ -1,18 +1,12 @@
 package tech.buildrun.controller;
 
 import jakarta.transaction.Transactional;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
 import tech.buildrun.controller.dto.CreateEventDto;
-import tech.buildrun.controller.dto.EventDto;
-import tech.buildrun.entity.EventEntity;
 import tech.buildrun.service.EventService;
 
 import java.net.URI;
-import java.util.List;
-import java.util.Optional;
 
 @Path("/events")
 public class EventController {
@@ -23,8 +17,11 @@ public class EventController {
     }
 
     @GET
-    public List<EventDto> getEvents() {
-        return eventService.findAll();
+    public Response getEvents(@QueryParam("page") @DefaultValue("0") Integer page,
+                                @QueryParam("pageSize") @DefaultValue("10") Integer pageSize) {
+        var events = eventService.findAll(page, pageSize);
+
+        return Response.ok(events).build();
     }
 
     @POST
@@ -45,4 +42,13 @@ public class EventController {
                 : Response.status(Response.Status.NOT_FOUND).build();
     }
 
+    @GET
+    @Path("{id}/seats")
+    public Response getEventSeats(Long id,
+                                  @QueryParam("page") @DefaultValue("0") Integer page,
+                                  @QueryParam("pageSize") @DefaultValue("10") Integer pageSize) {
+        var resp = eventService.findAllSeats(id, page, pageSize);
+
+        return Response.ok(resp).build();
+    }
 }

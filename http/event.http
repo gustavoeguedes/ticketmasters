@@ -3,11 +3,17 @@ Content-Type: application/json
 
 {
   "name": "Event Name",
-  "description": "Event Description"
+  "description": "Event Description",
+  "settings": {
+    "numberOfSeats": 100
+  }
 }
 
 ### Get all events
-GET localhost:8080/events
+GET localhost:8080/events?page=0&size=10
 
 ### Get a specific event by ID
 GET localhost:8080/events/2
+
+### Get seats by event ID
+GET localhost:8080/events/1/seats
