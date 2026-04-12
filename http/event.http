@@ -16,4 +16,4 @@ GET localhost:8080/events?page=0&size=10
 GET localhost:8080/events/2
 
 ### Get seats by event ID
-GET localhost:8080/events/1/seats
+GET localhost:8080/events/1/seats?page=9

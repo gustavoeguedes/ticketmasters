@@ -6,13 +6,14 @@ import jakarta.persistence.*;
 import java.util.Set;
 
 @Entity
+@Table(name = "tb_event")
 public class EventEntity extends PanacheEntityBase {
 
     @Id
     @GeneratedValue(strategy =  GenerationType.IDENTITY)
     public Long id;
 
-    @OneToMany(mappedBy = "eventId")
+    @OneToMany(mappedBy = "event")
     public Set<SeatEntity> seats;
 
     public String name;

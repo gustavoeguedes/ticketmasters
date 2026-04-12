@@ -57,7 +57,7 @@ public class EventService {
                                             Integer pageSize) {
 
         var event = EventEntity.findByIdOptional(id).orElseThrow(() -> new RuntimeException("Event not found"));
-        var query = SeatEntity.find("eventId", event)
+        var query = SeatEntity.find("event", event)
                 .page(Page.of(page, pageSize));
 
         var totalPages = query.pageCount();
