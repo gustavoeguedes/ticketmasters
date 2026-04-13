@@ -6,10 +6,7 @@ Content-Type: application/json
   "eventId": 1,
   "seats": [
     {
-      "seatId": 1
-    },
-    {
-      "seatId": 2
+      "seatId": 555
     }
   ]
 }

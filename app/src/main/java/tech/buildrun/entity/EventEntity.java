@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 import java.util.Set;
 
 @Entity
-@Table(name = "tb_event")
+@Table(name = "tb_events")
 public class EventEntity extends PanacheEntityBase {
 
     @Id

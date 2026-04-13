@@ -3,78 +3,89 @@ package tech.buildrun.service;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import tech.buildrun.controller.dto.CreateBookingDto;
-import tech.buildrun.controller.dto.ReserveSeatDto;
 import tech.buildrun.entity.*;
+import tech.buildrun.exception.ResourceNotFoundException;
+import tech.buildrun.exception.SeatAlreadyBookedException;
 
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
+
 
 @ApplicationScoped
 public class BookingService {
 
+
+    // TODO - validar cenarios de concorrencia
     @Transactional
     public Long createBooking(CreateBookingDto dto) {
 
-        Set<Long> seatsId = getAllSeatsId(dto);
-        var seats = findSeats(seatsId);
+        validateInputs(dto);
+
+        Set<SeatEntity> seatsAvailable = getSeatsAvailable(dto);
 
         var bookingEntity = buildBookingEntity(dto);
         bookingEntity.persist();
 
-        createTickets(seats, bookingEntity);
+        createTickets(seatsAvailable, bookingEntity);
 
-        updateSeats(seats);
+        updateSeats(seatsAvailable);
 
         return bookingEntity.id;
-
     }
 
-    private Set<Long> getAllSeatsId(CreateBookingDto dto) {
-        return dto.seats().
-                stream()
-                .map(ReserveSeatDto::seatId)
-                .collect(Collectors.toSet());
+    private static Set<SeatEntity> getSeatsAvailable(CreateBookingDto dto) {
+        Set<SeatEntity> seatsAvailable = new HashSet<>();
+        dto.seats()
+                .forEach(seat -> {
+
+                    SeatEntity s = SeatEntity.findByIdOptional(seat.seatId())
+                            .map(SeatEntity.class::cast)
+                            .orElseThrow(() -> new ResourceNotFoundException("Seat not found", "Seat with id not found"));
+
+                    if (s.status == SeatStatus.BOOKED) {
+                        throw new SeatAlreadyBookedException(s.name);
+                    }
+
+                    seatsAvailable.add(s);
+                });
+        return seatsAvailable;
     }
 
-    private BookingEntity buildBookingEntity(CreateBookingDto dto) {
+    private static void validateInputs(CreateBookingDto dto) {
+        UserEntity.findByIdOptional(dto.userId())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found", "User with id not found"));
+
+        EventEntity.findByIdOptional(dto.eventId())
+                .orElseThrow(() -> new ResourceNotFoundException("Event not found", "Event with id not found"));
+    }
+
+    private static BookingEntity buildBookingEntity(CreateBookingDto dto) {
         BookingEntity booking = new BookingEntity();
+
         booking.bookedAt = Instant.now();
         booking.status = BookingStatus.PENDING;
         booking.user = UserEntity.findById(dto.userId());
 
         return booking;
-
     }
 
-    private Set<SeatEntity> findSeats(Set<Long> seatsId) {
-        return SeatEntity.find("id in ?1", seatsId)
-                .stream()
-                .map(SeatEntity.class::cast)
-                .peek(s -> {
-                    if (s.status == SeatStatus.BOOKED) {
-                        throw new RuntimeException("Seat " + s.id + " is already booked");
-                    }
-                })
-                .collect(Collectors.toSet());
-    }
-
-    private void createTickets(Set<SeatEntity> seats, BookingEntity bookingEntity) {
-        var ticketEntity = new TicketEntity();
-        seats.forEach(s -> {
-            ticketEntity.seat = s;
+    private static void createTickets(Set<SeatEntity> seats, BookingEntity bookingEntity) {
+        TicketEntity ticketEntity = new TicketEntity();
+        seats.forEach(seat -> {
+            ticketEntity.seat = seat;
             ticketEntity.externalId = UUID.randomUUID();
             ticketEntity.booking = bookingEntity;
             ticketEntity.persist();
         });
     }
 
-    private void updateSeats(Set<SeatEntity> seats) {
-        seats.forEach(s -> {
-            s.status = SeatStatus.BOOKED;
-            s.persist();
-        });
+    private static void updateSeats(Set<SeatEntity> seats) {
+        seats.stream()
+                .peek(seat -> seat.status = SeatStatus.BOOKED)
+                .forEach(seat -> seat.persist());
     }
+
 
 }
