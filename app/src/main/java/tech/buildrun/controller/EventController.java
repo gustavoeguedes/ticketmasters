@@ -1,6 +1,7 @@
 package tech.buildrun.controller;
 
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
 import tech.buildrun.controller.dto.CreateEventDto;
@@ -26,7 +27,7 @@ public class EventController {
 
     @POST
     @Transactional
-    public Response createEvent(CreateEventDto dto) {
+    public Response createEvent(@Valid CreateEventDto dto) {
         var eventCreated = eventService.createEvent(dto);
         var location = URI.create(String.format("/events/%d", eventCreated.id()));
         return Response.created(location).build();

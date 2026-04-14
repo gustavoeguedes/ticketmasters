@@ -1,2 +1,7 @@
-.idea/
+.idea
+.quarkus
+target/
+docker/.env
+docker/volume
+
 

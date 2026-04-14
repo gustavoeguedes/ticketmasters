@@ -16,6 +16,11 @@ import java.util.UUID;
 @ApplicationScoped
 public class BookingService {
 
+    private final BookingExpirationService bookingExpirationService;
+
+    public BookingService(BookingExpirationService bookingExpirationService) {
+        this.bookingExpirationService = bookingExpirationService;
+    }
 
     // TODO - validar cenarios de concorrencia
     @Transactional
@@ -31,6 +36,8 @@ public class BookingService {
         createTickets(seatsAvailable, bookingEntity);
 
         updateSeats(seatsAvailable);
+
+        bookingExpirationService.scheduleExpirationCheck(bookingEntity.id);
 
         return bookingEntity.id;
     }
