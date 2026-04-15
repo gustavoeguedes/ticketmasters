@@ -1,4 +1,4 @@
-package tech.buildrun.service;
+package tech.buildrun.service.dto;
 
 public record CheckBookingStateDto(Long bookingId) {
 }

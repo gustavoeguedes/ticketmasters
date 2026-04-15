@@ -4,3 +4,13 @@ POST localhost:8080/users
 
 ### Get all users
 GET localhost:8080/users
+
+
+### login
+POST localhost:8080/auth/token
+Content-Type: application/json
+
+{
+    "username": "gustavo",
+    "password": "123"
+}

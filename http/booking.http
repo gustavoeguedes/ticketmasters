@@ -6,7 +6,15 @@ Content-Type: application/json
   "eventId": 1,
   "seats": [
     {
-      "seatId": 1
+      "seatId": 5
     }
   ]
+}
+
+### confirm booking
+POST localhost:8080/bookings/confirm
+Content-Type: application/json
+
+{
+  "bookingId": 401
 }

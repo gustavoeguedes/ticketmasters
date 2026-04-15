@@ -6,6 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
+import tech.buildrun.service.dto.CheckBookingStateDto;
 
 import java.io.UncheckedIOException;
 
